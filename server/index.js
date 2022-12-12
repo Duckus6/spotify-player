@@ -28,7 +28,7 @@ app.get('/auth/login', (req, res) => {
   
 	const auth_query_parameters = new URLSearchParams({
 	  response_type: "code",
-	  client_id: spotify_client_id,git
+	  client_id: spotify_client_id,
 	  scope: scope,
 	  redirect_uri: spotify_redirect_uri,
 	  state: state
@@ -39,7 +39,21 @@ app.get('/auth/login', (req, res) => {
   
 
 app.get('/auth/callback', (req, res) => {
-});
+	const code = req.query.code
+	const authOptions = {
+		body: {
+			code: code,
+			redirect_uri: `http://localhost:${port}/auth/callback`,
+			grant_type: 'authorization_code'
+		},
+		headers: {
+			'Authorization': 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')),
+			'Content-Type' : 'application/x-www-form-urlencoded'
+		},
+		json: true
+	}
+	fetch("https://accounts.spotify.com/api/token")
+})
 
 app.listen(port, () => {
   console.log(`Listening on ${port}`)
