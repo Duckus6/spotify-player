@@ -1,13 +1,14 @@
-const express = require('express')
-const dotenv = require('dotenv');
+import express from 'express';
+import { config } from 'dotenv';
+import emitter from '../events';
 
 const app = express();
 const port = 8080
 
-dotenv.config()
+config()
 
-var spotify_client_id = process.env.SPOTIFY_CLIENT_ID
-var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET
+const spotify_client_id = process.env.SPOTIFY_CLIENT_ID
+const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET
 
 
 //update this
@@ -52,7 +53,12 @@ app.get('/auth/callback', (req, res) => {
 		},
 		json: true
 	}
-	fetch("https://accounts.spotify.com/api/token")
+	fetch("https://accounts.spotify.com/api/token", authOptions)
+		.then(response => response.json())
+		.then(data => {
+			console.log(data)
+			emitter.emit('token-get', data)
+		})
 })
 
 app.listen(port, () => {
